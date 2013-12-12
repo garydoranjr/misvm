@@ -3,6 +3,16 @@ MISVM: Multiple-Instance Support Vector Machines
 
 by Gary Doran (<gary.doran@case.edu>)
 
+Overview
+--------
+
+MISVM contains a Python implementation of numerous support vector machine (SVM)
+algorithms for the multiple-instance (MI) learning framework. The
+implementations were created for use in the following publication:
+> Doran, Gary and Soumya Ray. **A theoretical and empirical analysis of support
+> vector machine methods for multiple-instance classification.** _To appear in
+> Machine Learning Journal._ 2013.
+
 Installation
 ------------
 
@@ -30,8 +40,7 @@ installed first. The build will likely fail if it can't find them. For more info
 Contents
 --------
 
-The MISVM package currently implements the following support vector machine
-(SVM) approaches for the multiple-instance (MI) learning framework:
+The MISVM package currently implements the following algorithms:
 
 ### SIL
 Single-Instance Learning (SIL) is a "naive" approach that assigns each instance
@@ -39,8 +48,8 @@ the label of its bag, creating a supervised learning problem but mislabeling
 negative instances in positive bags. It works surprisingly well for many
 problems.
 > Ray, Soumya, and Mark Craven. **Supervised versus multiple instance learning:
-> an empirical comparison.** Proceedings of the 22nd International Conference on
-> Machine Learning. 2005.
+> an empirical comparison.** _Proceedings of the 22nd International Conference
+> on Machine Learning._ 2005.
 
 ### MI-SVM and mi-SVM
 These approaches modify the standard SVM formulation so that the constraints on
@@ -83,6 +92,47 @@ specified or found via cross-validation:
 > Bunescu, Razvan C., and Raymond J. Mooney. **Multiple instance learning for
 > sparse positive bags.** _Proceedings of the 24th International Conference on
 > Machine Learning._ 2007.
+
+How to Use
+----------
+
+The classifier implementations are loosely based on those found in the
+[scikit-learn](http://scikit-learn.org/stable/) library. First, construct a
+classifier with the desired parameters:
+
+    >>> import misvm
+    >>> classifier = misvm.MISVM(kernel='linear', C=1.0, max_iters=50)
+
+Use Python's `help` functionality as in `help(misvm.MISVM)` or read the
+documentation in the code to see which arguments each classifier takes. Then,
+call the `fit` function with some data:
+
+    >>> classifier.fit(bags, labels)
+
+Here, the `bags` argument is a list of "array-like" (could be NumPy arrays, or a
+list of lists) objects representing each bag. Each (array-like) bag has m rows
+and f columns, which correspond to m instances, each with f features. Of course,
+m can be different across bags, but f must be the same. Then `labels` is an
+array-like object containing a label corresponding to each bag. *Each label must
+be either +1 or -1.* You will likely get strange results if you try using
+0/1-valued labels. After training the classifier, you can call the `predict`
+function as:
+
+    >>> labels = classifier.predict(bags)
+
+Here `bags` has the same format as for `fit`, and the function returns an array
+of real-valued predictions (use `numpy.sign(labels)` to get -1/+1 class
+predictions).
+
+An example script is included that trains classifiers on the [musk1
+dataset](http://archive.ics.uci.edu/ml/datasets/Musk+(Version+1)); see:
+> Bache, K. & Lichman, M. (2013). UCI Machine Learning Repository
+> [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School
+> of Information and Computer Science.
+
+Install the package or add the `misvm` directory to the `PYTHONPATH` environment
+variable before attempting to run the example using `python example.py` within
+the `example` directory.
 
 Questions and Issues
 --------------------
