@@ -9,11 +9,36 @@ from util import BagSplitter
 from nsk import NSK
 
 class sMIL(NSK):
+    """
+    Sparse MIL (Bunescu & Mooney, 2007)
+    """
 
     def __init__(self, *args, **kwargs):
+        """
+        @param kernel : the desired kernel function; can be linear, quadratic,
+                        polynomial, or rbf [default: linear]
+                        (by default, no normalization is used; to use averaging
+                        or feature space normalization, append either '_av' or
+                        '_fs' to the kernel name, as in 'rbf_av'; averaging
+                        normalization is used in the original formulation)
+        @param C : the loss/regularization tradeoff constant [default: 1.0]
+        @param scale_C : if True [default], scale C by the number of examples
+        @param p : polynomial degree when a 'polynomial' kernel is used
+                   [default: 3]
+        @param gamma : RBF scale parameter when an 'rbf' kernel is used
+                      [default: 1.0]
+        @param verbose : print optimization status messages [default: True]
+        @param sv_cutoff : the numerical cutoff for an example to be considered
+                           a support vector [default: 1e-7]
+        """
         super(sMIL, self).__init__(*args, **kwargs)
 
     def fit(self, bags, y):
+        """
+        @param bags : a sequence of n bags; each bag is an m-by-k array-like
+                      object containing m instances with k features
+        @param y : an array-like object of length n containing -1/+1 labels
+        """
         bs = BagSplitter(map(np.asmatrix, bags),
                          np.asmatrix(y).reshape((-1, 1)))
         self._bags = bs.neg_inst_as_bags + bs.pos_bags

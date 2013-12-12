@@ -14,8 +14,28 @@ from svm import SVM
 from cccp import CCCP
 
 class MICA(SVM):
+    """
+    The MICA approach of Mangasarian & Wild (2008)
+    """
 
     def __init__(self, *args, **kwargs):
+        """
+        @param kernel : the desired kernel function; can be linear, quadratic,
+                        polynomial, or rbf [default: linear]
+        @param C : the loss/regularization tradeoff constant [default: 1.0]
+        @param scale_C : if True [default], scale C by the number of examples
+        @param p : polynomial degree when a 'polynomial' kernel is used
+                   [default: 3]
+        @param gamma : RBF scale parameter when an 'rbf' kernel is used
+                      [default: 1.0]
+        @param verbose : print optimization status messages [default: True]
+        @param sv_cutoff : the numerical cutoff for an example to be considered
+                           a support vector [default: 1e-7]
+        @param restarts : the number of random restarts [default: 0]
+        @param max_iters : the maximum number of iterations in the outer loop of
+                           the optimization procedure [default: 50]
+        @param regularization : currently only L2 regularization is implemented
+        """
         self.regularization = kwargs.pop('regularization', 'L2')
         if not self.regularization in ('L2',):
             raise ValueError('Invalid regularization "%s"'
@@ -28,6 +48,11 @@ class MICA(SVM):
         self._bag_predictions = None
 
     def fit(self, bags, y):
+        """
+        @param bags : a sequence of n bags; each bag is an m-by-k array-like
+                      object containing m instances with k features
+        @param y : an array-like object of length n containing -1/+1 labels
+        """
         self._bags = map(np.asmatrix, bags)
         bs = BagSplitter(self._bags,
                          np.asmatrix(y).reshape((-1, 1)))
@@ -145,6 +170,12 @@ class MICA(SVM):
         self._predictions = self._b + self._dotprods
 
     def predict(self, bags):
+        """
+        @param bags : a sequence of n bags; each bag is an m-by-k array-like
+                      object containing m instances with k features
+        @return : an array of length n containing real-valued label predictions
+                  (threshold at zero to produce binary predictions)
+        """
         if self._b is None:
             return np.zeros(len(bags))
         else:

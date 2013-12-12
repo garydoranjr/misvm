@@ -13,13 +13,37 @@ from kernel import by_name as kernel_by_name
 from util import partition, BagSplitter, spdiag, rand_convex, slices
 
 class MISVM(SIL):
+    """
+    The MI-SVM approach of Andrews, Tsochantaridis, & Hofmann (2002)
+    """
 
     def __init__(self, *args, **kwargs):
+        """
+        @param kernel : the desired kernel function; can be linear, quadratic,
+                        polynomial, or rbf [default: linear]
+        @param C : the loss/regularization tradeoff constant [default: 1.0]
+        @param scale_C : if True [default], scale C by the number of examples
+        @param p : polynomial degree when a 'polynomial' kernel is used
+                   [default: 3]
+        @param gamma : RBF scale parameter when an 'rbf' kernel is used
+                      [default: 1.0]
+        @param verbose : print optimization status messages [default: True]
+        @param sv_cutoff : the numerical cutoff for an example to be considered
+                           a support vector [default: 1e-7]
+        @param restarts : the number of random restarts [default: 0]
+        @param max_iters : the maximum number of iterations in the outer loop of
+                           the optimization procedure [default: 50]
+        """
         self.restarts = kwargs.pop('restarts', 0)
         self.max_iters = kwargs.pop('max_iters', 50)
         super(MISVM, self).__init__(*args, **kwargs)
 
     def fit(self, bags, y):
+        """
+        @param bags : a sequence of n bags; each bag is an m-by-k array-like
+                      object containing m instances with k features
+        @param y : an array-like object of length n containing -1/+1 labels
+        """
         self._bags = [np.asmatrix(bag) for bag in bags]
         y = np.asmatrix(y).reshape((-1, 1))
 
@@ -134,13 +158,37 @@ class MISVM(SIL):
         self._bag_predictions = self.predict(self._bags)
 
 class miSVM(SIL):
+    """
+    The mi-SVM approach of Andrews, Tsochantaridis, & Hofmann (2002)
+    """
 
     def __init__(self, *args, **kwargs):
+        """
+        @param kernel : the desired kernel function; can be linear, quadratic,
+                        polynomial, or rbf [default: linear]
+        @param C : the loss/regularization tradeoff constant [default: 1.0]
+        @param scale_C : if True [default], scale C by the number of examples
+        @param p : polynomial degree when a 'polynomial' kernel is used
+                   [default: 3]
+        @param gamma : RBF scale parameter when an 'rbf' kernel is used
+                      [default: 1.0]
+        @param verbose : print optimization status messages [default: True]
+        @param sv_cutoff : the numerical cutoff for an example to be considered
+                           a support vector [default: 1e-7]
+        @param restarts : the number of random restarts [default: 0]
+        @param max_iters : the maximum number of iterations in the outer loop of
+                           the optimization procedure [default: 50]
+        """
         self.restarts = kwargs.pop('restarts', 0)
         self.max_iters = kwargs.pop('max_iters', 50)
         super(miSVM, self).__init__(*args, **kwargs)
 
     def fit(self, bags, y):
+        """
+        @param bags : a sequence of n bags; each bag is an m-by-k array-like
+                      object containing m instances with k features
+        @param y : an array-like object of length n containing -1/+1 labels
+        """
         self._bags = [np.asmatrix(bag) for bag in bags]
         y = np.asmatrix(y).reshape((-1, 1))
 

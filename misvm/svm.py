@@ -8,8 +8,25 @@ from kernel import by_name as kernel_by_name
 from util import spdiag
 
 class SVM(object):
+    """
+    A standard supervised SVM implementation.
+    """
 
-    def __init__(self, kernel='linear', C=1.0, p=3, gamma=1e0, scale_C=True, verbose=True, sv_cutoff=1e-7):
+    def __init__(self, kernel='linear', C=1.0, p=3, gamma=1e0, scale_C=True,
+                 verbose=True, sv_cutoff=1e-7):
+        """
+        @param kernel : the desired kernel function; can be linear, quadratic,
+                        polynomial, or rbf [default: linear]
+        @param C : the loss/regularization tradeoff constant [default: 1.0]
+        @param scale_C : if True [default], scale C by the number of examples
+        @param p : polynomial degree when a 'polynomial' kernel is used
+                   [default: 3]
+        @param gamma : RBF scale parameter when an 'rbf' kernel is used
+                      [default: 1.0]
+        @param verbose : print optimization status messages [default: True]
+        @param sv_cutoff : the numerical cutoff for an example to be considered
+                           a support vector [default: 1e-7]
+        """
         self.kernel = kernel
         self.C = C
         self.gamma = gamma
@@ -30,6 +47,11 @@ class SVM(object):
         self._predictions = None
 
     def fit(self, X, y):
+        """
+        @param X : an n-by-m array-like object containing n examples with m
+                   features
+        @param y : an array-like object of length n containing -1/+1 labels
+        """
         self._X = np.asmatrix(X)
         self._y = np.asmatrix(y).reshape((-1, 1))
         if self.scale_C:
@@ -65,6 +87,12 @@ class SVM(object):
                 + self._sv_alphas.T*D*_sv_all_K).reshape((-1,))
 
     def predict(self, X):
+        """
+        @param X : an n-by-m array-like object containing n examples with m
+                   features
+        @return : an array of length n containing real-valued label predictions
+                  (threshold at zero to produce binary predictions)
+        """
         if self._sv_X is None or len(self._sv_X) == 0:
             return np.zeros(len(X))
         else:
