@@ -125,7 +125,7 @@ of real-valued predictions (use `numpy.sign(labels)` to get -1/+1 class
 predictions).
 
 An example script is included that trains classifiers on the [musk1
-dataset](http://archive.ics.uci.edu/ml/datasets/Musk+(Version+1); see:
+dataset](http://archive.ics.uci.edu/ml/datasets/Musk+(Version+1)); see:
 > Bache, K. & Lichman, M. (2013). UCI Machine Learning Repository
 > [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School
 > of Information and Computer Science.
