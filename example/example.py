@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 
-from io import parse_c45, bag_set
+from misvmio import parse_c45, bag_set
 import misvm
 
 def main():
