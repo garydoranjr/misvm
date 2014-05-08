@@ -12,6 +12,7 @@ from quadprog import IterativeQP, spzeros, speye
 from kernel import by_name as kernel_by_name
 from util import partition, BagSplitter, spdiag, rand_convex, slices
 
+
 class MISVM(SIL):
     """
     The MI-SVM approach of Andrews, Tsochantaridis, & Hofmann (2002)
@@ -52,15 +53,17 @@ class MISVM(SIL):
         best_svm = None
         for rr in range(self.restarts + 1):
             if rr == 0:
-                if self.verbose: print 'Non-random start...'
+                if self.verbose:
+                    print 'Non-random start...'
                 pos_bag_avgs = np.vstack([np.average(bag, axis=0) for bag in bs.pos_bags])
             else:
-                if self.verbose: print 'Random restart %d of %d...' % (rr, self.restarts)
-                pos_bag_avgs = np.vstack([rand_convex(len(bag))*bag for bag in bs.pos_bags])
+                if self.verbose:
+                    print 'Random restart %d of %d...' % (rr, self.restarts)
+                pos_bag_avgs = np.vstack([rand_convex(len(bag)) * bag for bag in bs.pos_bags])
 
             intial_instances = np.vstack([bs.neg_instances, pos_bag_avgs])
             classes = np.vstack([-np.ones((bs.L_n, 1)),
-                                  np.ones((bs.X_p, 1))])
+                                 np.ones((bs.X_p, 1))])
 
             # Setup SVM and QP
             if self.scale_C:
@@ -78,11 +81,11 @@ class MISVM(SIL):
             pos_cons = speye(bs.X_p)
             bot_left = spzeros(bs.X_p, bs.L_n)
             top_right = spzeros(bs.X_n, bs.X_p)
-            half_cons = sparse([[neg_cons,  bot_left],
+            half_cons = sparse([[neg_cons, bot_left],
                                 [top_right, pos_cons]])
             qp.G = sparse([-speye(bs.X_p + bs.L_n), half_cons])
-            qp.h = cvxmat(np.vstack([ np.zeros((bs.X_p + bs.L_n, 1)),
-                                     C*np.ones((bs.X_p + bs.X_n, 1))]))
+            qp.h = cvxmat(np.vstack([np.zeros((bs.X_p + bs.L_n, 1)),
+                                     C * np.ones((bs.X_p + bs.X_n, 1))]))
 
             # Precompute kernel for all positive instances
             kernel = kernel_by_name(self.kernel, gamma=self.gamma, p=self.p)
@@ -133,7 +136,7 @@ class MISVM(SIL):
                     indices = (new_selectors,)
                     K = K_all[indices].T[indices].T
                     D = spdiag(classes)
-                    qp.update_H(D*K*D)
+                    qp.update_H(D * K * D)
                     return {'svm': svm, 'selectors': new_selectors,
                             'instances': bs.instances[indices], 'K': K}, None
 
@@ -156,6 +159,7 @@ class MISVM(SIL):
     def _compute_separator(self, K):
         super(SIL, self)._compute_separator(K)
         self._bag_predictions = self.predict(self._bags)
+
 
 class miSVM(SIL):
     """
@@ -197,15 +201,17 @@ class miSVM(SIL):
         best_svm = None
         for rr in range(self.restarts + 1):
             if rr == 0:
-                if self.verbose: print 'Non-random start...'
+                if self.verbose:
+                    print 'Non-random start...'
                 initial_classes = np.vstack([-np.ones((bs.L_n, 1)),
-                                              np.ones((bs.L_p, 1))])
+                                             np.ones((bs.L_p, 1))])
             else:
-                if self.verbose: print 'Random restart %d of %d...' % (rr, self.restarts)
+                if self.verbose:
+                    print 'Random restart %d of %d...' % (rr, self.restarts)
                 rand_classes = np.matrix([np.sign([uniform(-1.0, 1.0)
                                                    for i in range(bs.L_p)])]).T
                 initial_classes = np.vstack([-np.ones((bs.L_n, 1)),
-                                              rand_classes])
+                                             rand_classes])
                 initial_classes[np.nonzero(initial_classes == 0.0)] = 1.0
 
             # Setup SVM and QP
@@ -225,7 +231,7 @@ class miSVM(SIL):
                 def iterate(cself, svm, classes):
                     cself.mention('Training SVM...')
                     D = spdiag(classes)
-                    qp.update_H(D*K*D)
+                    qp.update_H(D * K * D)
                     qp.update_Aeq(classes.T)
                     alphas, obj = qp.solve(cself.verbose)
 
@@ -246,7 +252,7 @@ class miSVM(SIL):
                                              partition(p_conf, bs.pos_groups)])
                     new_classes = np.vstack([-np.ones((bs.L_n, 1)), pos_classes])
 
-                    class_changes = round(np.sum(np.abs(classes - new_classes)/2))
+                    class_changes = round(np.sum(np.abs(classes - new_classes) / 2))
                     cself.mention('Class Changes: %d' % class_changes)
                     if class_changes == 0:
                         return None, svm
@@ -268,6 +274,7 @@ class miSVM(SIL):
             self._alphas = best_svm._alphas
             self._objective = best_svm._objective
             self._compute_separator(best_svm._K)
+
 
 def _update_classes(x):
     classes = np.sign(x)

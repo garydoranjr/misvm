@@ -1,5 +1,6 @@
 try:
     from setuptools import setup
+
     setup  # quiet "redefinition of unused ..." warning from pyflakes
     # arguments that distutils doesn't understand
     setuptools_kwargs = {
@@ -12,12 +13,16 @@ try:
     }
 except ImportError:
     from distutils.core import setup
+
     setuptools_kwargs = {}
 
 setup(name='misvm',
       version="1.0",
       description=(
-        'Implementations of various multiple-instance support vector machine approaches'
+          """
+          Implementations of various
+          multiple-instance support vector machine approaches
+          """
       ),
       author='Gary Doran',
       author_email='gary.doran@case.edu',
@@ -26,6 +31,4 @@ setup(name='misvm',
       packages=['misvm'],
       platforms=['unix'],
       scripts=[],
-      **setuptools_kwargs
-)
-
+      **setuptools_kwargs)

@@ -6,13 +6,16 @@ import scipy.sparse as sp
 from itertools import chain
 from random import uniform
 
+
 def rand_convex(n):
     rand = np.matrix([uniform(0.0, 1.0) for i in range(n)])
-    return rand/np.sum(rand)
+    return rand / np.sum(rand)
+
 
 def spdiag(x):
     n = len(x)
     return sp.spdiags(x.flat, [0], n, n)
+
 
 def partition(items, group_sizes):
     """
@@ -21,8 +24,9 @@ def partition(items, group_sizes):
     """
     i = 0
     for group in group_sizes:
-        yield items[i : i + group]
+        yield items[i: i + group]
         i += group
+
 
 def slices(groups):
     """
@@ -35,8 +39,8 @@ def slices(groups):
         yield i, i + group
         i += group
 
-class BagSplitter(object):
 
+class BagSplitter(object):
     def __init__(self, bags, classes):
         self.bags = bags
         self.classes = classes
@@ -64,7 +68,7 @@ class BagSplitter(object):
             return self.instances
         elif name == 'inst_classes':
             self.inst_classes = np.vstack([-np.ones((self.L_n, 1)),
-                                            np.ones((self.L_p, 1))])
+                                           np.ones((self.L_p, 1))])
             return self.inst_classes
         elif name == 'pos_groups':
             self.pos_groups = [len(bag) for bag in self.pos_bags]

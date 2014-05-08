@@ -9,6 +9,7 @@ from kernel import by_name as kernel_by_name
 from util import spdiag
 from svm import SVM
 
+
 class NSK(SVM):
     """
     Normalized set kernel of Gaertner, et al. (2002)
@@ -49,11 +50,13 @@ class NSK(SVM):
         else:
             C = self.C
 
-        if self.verbose: print 'Setup QP...'
+        if self.verbose:
+            print 'Setup QP...'
         K, H, f, A, b, lb, ub = self._setup_svm(self._bags, self._y, C)
 
         # Solve QP
-        if self.verbose: print 'Solving QP...'
+        if self.verbose:
+            print 'Solving QP...'
         self._alphas, self._objective = quadprog(H, f, A, b, lb, ub,
                                                  self.verbose)
         self._compute_separator(K)
@@ -74,9 +77,9 @@ class NSK(SVM):
             _sv_K = _sv_all_K.T[self._sv].T
             e = np.matrix(np.ones((n, 1)))
             D = spdiag(self._sv_y)
-            self._b = float(e.T*D*e - self._sv_alphas.T*D*_sv_K*e) / n
+            self._b = float(e.T * D * e - self._sv_alphas.T * D * _sv_K * e) / n
             self._bag_predictions = np.array(self._b
-                + self._sv_alphas.T*D*_sv_all_K).reshape((-1,))
+                                             + self._sv_alphas.T * D * _sv_all_K).reshape((-1,))
 
     def predict(self, bags):
         """
@@ -90,4 +93,4 @@ class NSK(SVM):
         else:
             kernel = kernel_by_name(self.kernel, p=self.p, gamma=self.gamma)
             K = kernel(map(np.asmatrix, bags), self._sv_bags)
-            return np.array(self._b + K*spdiag(self._sv_y)*self._sv_alphas).reshape((-1,))
+            return np.array(self._b + K * spdiag(self._sv_y) * self._sv_alphas).reshape((-1,))

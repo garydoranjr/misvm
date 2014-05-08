@@ -7,6 +7,7 @@ from smil import sMIL
 from sil import SIL
 from util import BagSplitter
 
+
 class sbMIL(SIL):
     """
     Sparse, balanced MIL (Bunescu & Mooney, 2007)
@@ -46,15 +47,17 @@ class sbMIL(SIL):
         y = np.asmatrix(y).reshape((-1, 1))
         bs = BagSplitter(self._bags, y)
 
-        if self.verbose: print 'Training initial sMIL classifier for sbMIL...'
+        if self.verbose:
+            print 'Training initial sMIL classifier for sbMIL...'
         initial_classifier = sMIL(kernel=self.kernel, C=self.C, p=self.p, gamma=self.gamma,
                                   scale_C=self.scale_C, verbose=self.verbose,
                                   sv_cutoff=self.sv_cutoff)
         initial_classifier.fit(bags, y)
-        if self.verbose: print 'Computing initial instance labels for sbMIL...'
+        if self.verbose:
+            print 'Computing initial instance labels for sbMIL...'
         f_pos = initial_classifier.predict(bs.pos_inst_as_bags)
         # Select nth largest value as cutoff for positive instances
-        n = int(round(bs.L_p*self.eta))
+        n = int(round(bs.L_p * self.eta))
         n = min(bs.L_p, n)
         n = max(bs.X_p, n)
         f_cutoff = sorted((float(f) for f in f_pos), reverse=True)[n - 1]
@@ -65,7 +68,7 @@ class sbMIL(SIL):
 
         # Train on all instances
         if self.verbose:
-            print 'Retraining with top %d%% as positive...' % int(100*self.eta)
+            print 'Retraining with top %d%% as positive...' % int(100 * self.eta)
         all_labels = np.vstack([-np.ones((bs.L_n, 1)), pos_labels])
         super(SIL, self).fit(bs.instances, all_labels)
 

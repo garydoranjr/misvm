@@ -14,6 +14,7 @@ DATA_EXT = '.data'
 _COMMENT_RE = '//.*'
 _BINARY_RE = '\\s*0\\s*,\\s*1\\s*'
 
+
 class Feature(object):
     """
     Information for a feature
@@ -24,17 +25,17 @@ class Feature(object):
         """
         Type of feature
         """
-        CLASS      = 'CLASS'
-        ID         = 'ID'
-        BINARY     = 'BINARY'
-        NOMINAL    = 'NOMINAL'
+        CLASS = 'CLASS'
+        ID = 'ID'
+        BINARY = 'BINARY'
+        NOMINAL = 'NOMINAL'
         CONTINUOUS = 'CONTINUOUS'
 
     def __init__(self, name, ftype, values=None):
         self.name = name
         self.type = ftype
         if (self.type == Feature.Type.ID or
-            self.type == Feature.Type.NOMINAL):
+                    self.type == Feature.Type.NOMINAL):
             if values is None:
                 raise Exception('No values for %s feature' % self.type)
             else:
@@ -64,17 +65,20 @@ class Feature(object):
         if value is None:
             return None
         if (self.type == Feature.Type.ID or
-            self.type == Feature.Type.NOMINAL):
+                    self.type == Feature.Type.NOMINAL):
             return float(self.values.index(value))
         elif (self.type == Feature.Type.BINARY or
-              self.type == Feature.Type.CLASS):
-            if value: return 1.0
-            else:     return 0.0
+                      self.type == Feature.Type.CLASS):
+            if value:
+                return 1.0
+            else:
+                return 0.0
         else:
             return value
 
 
 Feature.CLASS = Feature("CLASS", Feature.Type.CLASS)
+
 
 class Schema(Sequence):
     """
@@ -110,10 +114,12 @@ class Schema(Sequence):
     def __getitem__(self, key):
         return self.features[key]
 
+
 class ExampleSet(MutableSequence):
     """
     Holds a set of examples
     """
+
     def __init__(self, schema):
         self.schema = schema
         self.examples = []
@@ -146,7 +152,7 @@ class ExampleSet(MutableSequence):
     def append(self, example):
         if example.schema != self.schema:
             raise ValueError('Schema mismatch')
-        super(ExampleSet,self).append(example)
+        super(ExampleSet, self).append(example)
 
     def __repr__(self):
         return '<%s, %s>' % (self.schema, self.examples)
@@ -154,11 +160,13 @@ class ExampleSet(MutableSequence):
     def to_float(self, normalizer=None):
         return [ex.to_float(normalizer) for ex in self]
 
+
 class Example(MutableSequence):
     """
     Represents a single example
     from a dataset
     """
+
     def __init__(self, schema):
         self.schema = schema
         self.features = [None for i in range(len(schema))]
@@ -200,10 +208,12 @@ class Example(MutableSequence):
         return normalizer([feature.to_float(value)
                            for feature, value in zip(self.schema, self)])
 
+
 class Bag(MutableSequence):
     """
     Represents a Bag
     """
+
     def __init__(self, bag_id, examples):
         classes = map(lambda x: x[-1], examples)
         if any(classes):
@@ -240,6 +250,7 @@ class Bag(MutableSequence):
     def to_float(self, normalizer=None):
         return [example.to_float(normalizer) for example in self]
 
+
 def bag_set(exampleset, bag_attr=0):
     """
     Construct bags on the given attribute
@@ -248,6 +259,7 @@ def bag_set(exampleset, bag_attr=0):
     for example in exampleset:
         bag_dict[example[bag_attr]].append(example)
     return [Bag(bag_id, value) for bag_id, value in bag_dict.items()]
+
 
 def parse_c45(file_base, rootdir='.'):
     """
@@ -264,6 +276,7 @@ def parse_c45(file_base, rootdir='.'):
         raise ValueError('Data file not found')
     return _parse_c45(schema_file, data_file)
 
+
 def _parse_c45(schema_filename, data_filename):
     """Parses C4.5 given file names"""
     try:
@@ -278,6 +291,7 @@ def _parse_c45(schema_filename, data_filename):
 
     return examples
 
+
 def _parse_schema(schema_filename):
     features = []
     needs_id = True
@@ -286,7 +300,7 @@ def _parse_schema(schema_filename):
             feature = _parse_feature(line, needs_id)
             if feature is not None:
                 if (needs_id and
-                    feature.type == Feature.Type.ID):
+                            feature.type == Feature.Type.ID):
                     needs_id = False
                 features.append(feature)
     try:
@@ -295,6 +309,7 @@ def _parse_schema(schema_filename):
         raise Exception('File does not contain worthless "Class" line.')
     features.append(Feature.CLASS)
     return Schema(features)
+
 
 def _parse_feature(line, needs_id):
     """
@@ -313,7 +328,7 @@ def _parse_feature(line, needs_id):
     if colon < 0:
         raise Exception('No feature name found.')
     name = line[:colon].strip()
-    remainder = line[colon+1:]
+    remainder = line[colon + 1:]
     values = _parse_values(remainder)
     if needs_id:
         return Feature(name, Feature.Type.ID, values)
@@ -324,6 +339,7 @@ def _parse_feature(line, needs_id):
     else:
         return Feature(name, Feature.Type.NOMINAL, values)
 
+
 def _parse_values(remainder):
     values = list()
     for raw in remainder.split(','):
@@ -332,6 +348,7 @@ def _parse_values(remainder):
             raw = raw[1:-1].strip()
         values.append(raw)
     return values
+
 
 def _parse_examples(schema, data_filename):
     exset = ExampleSet(schema)
@@ -348,6 +365,7 @@ def _parse_examples(schema, data_filename):
                 print >> sys.stderr, 'Warning: skipping line: "%s"' % line
     return exset
 
+
 def _parse_example(schema, line):
     values = _parse_values(line)
     if len(values) != len(schema):
@@ -359,16 +377,17 @@ def _parse_example(schema, line):
             continue
         stype = schema[i].type
         if (stype == Feature.Type.ID or
-            stype == Feature.Type.NOMINAL):
+                    stype == Feature.Type.NOMINAL):
             ex[i] = value
         elif (stype == Feature.Type.BINARY or
-              stype == Feature.Type.CLASS):
+                      stype == Feature.Type.CLASS):
             ex[i] = bool(int(value))
         elif stype == Feature.Type.CONTINUOUS:
             ex[i] = float(value)
         else:
             raise ValueError('Unknown schema type "%s"' % stype)
     return ex
+
 
 def _trim_line(line):
     """
@@ -381,6 +400,7 @@ def _trim_line(line):
         line = line[:-1].strip()
     return line
 
+
 def find_file(filename, rootdir):
     """
     Finds a file with filename located in
@@ -389,6 +409,7 @@ def find_file(filename, rootdir):
     for dirpath, _, filenames in os.walk(rootdir):
         if filename in filenames:
             return os.path.join(dirpath, filename)
+
 
 def save_c45(example_set, basename, basedir='.'):
     schema_name = os.path.join(basedir, basename + NAMES_EXT)
@@ -399,9 +420,9 @@ def save_c45(example_set, basename, basedir='.'):
         schema_file.write('0,1.\n')
         for feature in example_set.schema:
             if (feature.type == Feature.Type.ID or
-                feature.type == Feature.Type.NOMINAL):
+                        feature.type == Feature.Type.NOMINAL):
                 schema_file.write('%s:%s.\n' %
-                    (feature.name, ','.join(sorted(feature.values))))
+                                  (feature.name, ','.join(sorted(feature.values))))
             elif feature.type == Feature.Type.BINARY:
                 schema_file.write('%s:0,1.\n' % feature.name)
             elif feature.type == Feature.Type.CONTINUOUS:
@@ -412,12 +433,13 @@ def save_c45(example_set, basename, basedir='.'):
             ex_strs = starmap(_feature_to_str, zip(example.schema, example))
             data_file.write('%s.\n' % ','.join(ex_strs))
 
+
 def _feature_to_str(feature, value):
     if (feature.type == Feature.Type.ID or
-        feature.type == Feature.Type.NOMINAL):
+                feature.type == Feature.Type.NOMINAL):
         return value
     elif (feature.type == Feature.Type.BINARY or
-          feature.type == Feature.Type.CLASS):
+                  feature.type == Feature.Type.CLASS):
         return str(int(value))
     elif feature.type == Feature.Type.CONTINUOUS:
         return str(float(value))

@@ -1,9 +1,10 @@
 """
-Implements standard code for problems that 
+Implements standard code for problems that
 require the Concave-Convex Procedure (CCCP),
 or similar iteration.
 """
 from sys import stderr
+
 
 class CCCP(object):
     """
@@ -64,6 +65,6 @@ class CCCP(object):
         """
         if last_obj is not None:
             delta_obj = abs(float(new_obj) - float(last_obj))
-            self.mention('delta obj ratio: %.2e' % (delta_obj/self.TOLERANCE))
+            self.mention('delta obj ratio: %.2e' % (delta_obj / self.TOLERANCE))
             return delta_obj < self.TOLERANCE
         return False
