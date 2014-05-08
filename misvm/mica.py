@@ -13,6 +13,7 @@ from kernel import by_name as kernel_by_name
 from svm import SVM
 from cccp import CCCP
 
+
 class MICA(SVM):
     """
     The MICA approach of Mangasarian & Wild (2008)
@@ -39,7 +40,7 @@ class MICA(SVM):
         self.regularization = kwargs.pop('regularization', 'L2')
         if not self.regularization in ('L2',):
             raise ValueError('Invalid regularization "%s"'
-                                % self.regularization)
+                             % self.regularization)
         self.restarts = kwargs.pop('restarts', 0)
         self.max_iters = kwargs.pop('max_iters', 50)
         super(MICA, self).__init__(*args, **kwargs)
@@ -68,7 +69,7 @@ class MICA(SVM):
 
         K = kernel_by_name(self.kernel, gamma=self.gamma, p=self.p)(self._X, self._X)
         new_classes = np.matrix(np.vstack([-np.ones((Ln, 1)),
-                                            np.ones((Xp, 1))]))
+                                           np.ones((Xp, 1))]))
         self._y = new_classes
         D = spdiag(new_classes)
         setup = list(self._setup_svm(new_classes, new_classes, C))[1:]
@@ -82,15 +83,15 @@ class MICA(SVM):
         for row, (i, j) in enumerate(slices(bs.pos_groups)):
             A[row, i:j] = 1.0
 
-        bottom_left = sparse(t([[-spI(Lp),    spz(Lp)],
-                                 [ spz(m, Lp), spz(m) ]]))
+        bottom_left = sparse(t([[-spI(Lp), spz(Lp)],
+                                [spz(m, Lp), spz(m)]]))
         bottom_right = sparse([spz(Lp, m), -spI(m)])
         inst_cons = sparse(t([[spz(Xp, Lp), -spo(Xp)],
-                              [spz(Ln, Lp),  spo(Ln)]]))
-        G = sparse(t([[inst_cons,   -spI(m)],
+                              [spz(Ln, Lp), spo(Ln)]]))
+        G = sparse(t([[inst_cons, -spI(m)],
                       [bottom_left, bottom_right]]))
         h = cvxmat(np.vstack([-np.ones((Xp, 1)),
-                               np.zeros((Ln + Lp + m, 1))]))
+                              np.zeros((Ln + Lp + m, 1))]))
 
         def to_V(upsilon):
             bot = np.zeros((Xp, Lp))
@@ -107,7 +108,7 @@ class MICA(SVM):
             def iterate(cself, alphas, upsilon, svm):
                 V = to_V(upsilon)
                 cself.mention('Update QP...')
-                qp.update_H(D*V*K*V.T*D)
+                qp.update_H(D * V * K * V.T * D)
                 cself.mention('Solve QP...')
                 alphas, obj = qp.solve(self.verbose)
                 svm = MICA(kernel=self.kernel, gamma=self.gamma, p=self.p,
@@ -122,8 +123,8 @@ class MICA(SVM):
 
                 cself.mention('Update LP...')
                 for row, (i, j) in enumerate(slices(bs.pos_groups)):
-                    G[row, i:j] = cvxmat(-svm._dotprods[Ln + i : Ln + j].T)
-                h[Xp : Xp + Ln] = cvxmat(-(1 + svm._dotprods[:Ln]))
+                    G[row, i:j] = cvxmat(-svm._dotprods[Ln + i: Ln + j].T)
+                h[Xp: Xp + Ln] = cvxmat(-(1 + svm._dotprods[:Ln]))
 
                 cself.mention('Solve LP...')
                 sol, _ = linprog(c, G, h, A, b, verbose=self.verbose)
@@ -132,17 +133,19 @@ class MICA(SVM):
                 if cself.check_tolerance(np.linalg.norm(upsilon - new_upsilon)):
                     return None, svm
 
-                return {'alphas':alphas, 'upsilon':new_upsilon, 'svm':svm}, None
+                return {'alphas': alphas, 'upsilon': new_upsilon, 'svm': svm}, None
 
         best_obj = float('inf')
         best_svm = None
         for rr in range(self.restarts + 1):
             if rr == 0:
-                if self.verbose: print 'Non-random start...'
-                upsilon0 = np.matrix(np.vstack([np.ones((size, 1))/float(size)
+                if self.verbose:
+                    print 'Non-random start...'
+                upsilon0 = np.matrix(np.vstack([np.ones((size, 1)) / float(size)
                                                 for size in bs.pos_groups]))
             else:
-                if self.verbose: print 'Random restart %d of %d...' % (rr, self.restarts)
+                if self.verbose:
+                    print 'Random restart %d of %d...' % (rr, self.restarts)
                 upsilon0 = np.matrix(np.vstack([rand_convex(size).T
                                                 for size in bs.pos_groups]))
             cccp = MICACCCP(verbose=self.verbose, alphas=None, upsilon=upsilon0,
@@ -165,8 +168,8 @@ class MICA(SVM):
         sv = (self._alphas.flat > self.sv_cutoff)
 
         D = spdiag(self._y)
-        self._b = (np.sum(D*sv) - np.sum(self._alphas.T*D*self._V*K))/np.sum(sv)
-        self._dotprods = (self._alphas.T*D*self._V*K).T
+        self._b = (np.sum(D * sv) - np.sum(self._alphas.T * D * self._V * K)) / np.sum(sv)
+        self._dotprods = (self._alphas.T * D * self._V * K).T
         self._predictions = self._b + self._dotprods
 
     def predict(self, bags):
@@ -182,9 +185,10 @@ class MICA(SVM):
             bags = [np.asmatrix(bag) for bag in bags]
             k = kernel_by_name(self.kernel, p=self.p, gamma=self.gamma)
             D = spdiag(self._y)
-            return np.array([np.max(self._b + self._alphas.T*D*self._V*
+            return np.array([np.max(self._b + self._alphas.T * D * self._V *
                                     k(self._X, bag))
                              for bag in bags])
+
 
 def linprog(*args, **kwargs):
     verbose = kwargs.get('verbose', False)
@@ -201,16 +205,18 @@ def linprog(*args, **kwargs):
     status = results['status']
     if not status == 'optimal':
         print >> sys.stderr, ('Warning: termination of lp with status: %s'
-                               % status)
+                              % status)
 
     # Convert back to NumPy matrix
     # and return solution
     xstar = results['x']
     return np.matrix(xstar), results['primal objective']
 
+
 def spo(r, v=1.0):
     """Create a sparse one vector"""
-    return spmatrix(v, range(r), r*[0])
+    return spmatrix(v, range(r), r * [0])
+
 
 def t(list_of_lists):
     """

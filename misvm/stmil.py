@@ -10,6 +10,7 @@ from quadprog import IterativeQP
 from cccp import CCCP
 from util import BagSplitter, spdiag
 
+
 class stMIL(NSK):
     """
     Sparse, transductive MIL (Bunescu & Mooney, 2007)
@@ -58,34 +59,39 @@ class stMIL(NSK):
             niC = float(self.C)
             piC = float(self.C)
             pbC = float(self.C)
-        C = np.vstack([niC*np.ones((bs.L_n, 1)),
-                       piC*np.ones((bs.L_p, 1)),
-                       pbC*np.ones((bs.X_p, 1))])
+        C = np.vstack([niC * np.ones((bs.L_n, 1)),
+                       piC * np.ones((bs.L_p, 1)),
+                       pbC * np.ones((bs.X_p, 1))])
 
         # Used to adjust balancing terms
         factors = np.vstack([np.matrix(np.ones((bs.L_n + bs.L_p, 1))),
-                             np.matrix([2.0/bag.shape[0] - 1.0
-                                     for bag in bs.pos_bags]).T])
+                             np.matrix([2.0 / bag.shape[0] - 1.0
+                                        for bag in bs.pos_bags]).T])
 
         best_obj = float('inf')
         best_svm = None
         for rr in range(self.restarts + 1):
             if rr == 0:
-                if self.verbose: print 'Non-random start...'
-                if self.verbose: print 'Initial sMIL solution...'
+                if self.verbose:
+                    print 'Non-random start...'
+                if self.verbose:
+                    print 'Initial sMIL solution...'
                 smil = sMIL(kernel=self.kernel, C=self.C,
                             gamma=self.gamma, p=self.p, scale_C=self.scale_C)
                 smil.fit(bags, y)
-                if self.verbose: print 'Computing instance classes...'
+                if self.verbose:
+                    print 'Computing instance classes...'
                 initial_svm = smil
                 initial_classes = np.sign(smil.predict(bs.pos_inst_as_bags))
             else:
-                if self.verbose: print 'Random restart %d of %d...' % (rr, self.restarts)
+                if self.verbose:
+                    print 'Random restart %d of %d...' % (rr, self.restarts)
                 initial_svm = None
                 initial_classes = np.matrix([np.sign([uniform(-1.0, 1.0)
                                                       for i in range(bs.L_p)])]).T
 
-            if self.verbose: print 'Setup SVM and QP...'
+            if self.verbose:
+                print 'Setup SVM and QP...'
             # Setup SVM and QP
             K, H, f, A, b, lb, ub = self._setup_svm(self._all_bags, all_classes, C)
             # Adjust f with balancing terms
@@ -108,7 +114,7 @@ class stMIL(NSK):
                     D = spdiag(all_classes)
 
                     # Update QP
-                    qp.update_H(D*K*D)
+                    qp.update_H(D * K * D)
                     qp.update_Aeq(all_classes.T)
 
                     # Solve QP

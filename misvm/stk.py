@@ -5,6 +5,7 @@ import numpy as np
 
 from svm import SVM
 
+
 class STK(SVM):
     """
     Statistics kernel of Gaertner, et al. (2002)
@@ -53,6 +54,7 @@ class STK(SVM):
         bags = [np.asmatrix(bag) for bag in bags]
         svm_X = _stats_from_bags(bags)
         return super(STK, self).predict(svm_X)
+
 
 def _stats_from_bags(bags):
     return np.vstack([np.hstack([np.min(bag, 0), np.max(bag, 0)])

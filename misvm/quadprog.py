@@ -5,6 +5,7 @@ from itertools import count
 
 from numpy import eye, vstack, matrix
 
+
 class IterativeQP(object):
     """
     Iteratively solves QPs, allowing
@@ -17,7 +18,7 @@ class IterativeQP(object):
         minimize:
                 (1/2)*x'*H*x + f'*x
         subject to:
-                Aeq*x = beq 
+                Aeq*x = beq
                 lb <= x <= ub
         """
         self.lb = lb
@@ -48,7 +49,7 @@ class IterativeQP(object):
         to P to ensure numerically it is P.D.
         """
         n = self.P.size[0]
-        self.P = self.P + cvxmat(epsilon*eye(n))
+        self.P = self.P + cvxmat(epsilon * eye(n))
 
     def clear_results(self):
         self.last_results = None
@@ -67,7 +68,7 @@ class IterativeQP(object):
                 # Sometimes the hessian isn't full rank,
                 # due to numerical error
                 if self.fix_pd:
-                    eps = 10.0**i
+                    eps = 10.0 ** i
                     print 'Rank error while solving, adjusting to fix...'
                     print 'Using epsilon = %.1e' % eps
                     self._ensure_pd(eps)
@@ -88,28 +89,32 @@ class IterativeQP(object):
         # Convert back to NumPy matrix
         # and return solution
         xstar = results['x']
-        obj = Objective((0.5*xstar.T*self.P*xstar)[0], (self.q.T*xstar)[0])
+        obj = Objective((0.5 * xstar.T * self.P * xstar)[0], (self.q.T * xstar)[0])
         return matrix(xstar), obj
+
 
 def quadprog(H, f, Aeq, beq, lb, ub, verbose=False, fix_pd=False):
     """
     minimize:
             (1/2)*x'*H*x + f'*x
     subject to:
-            Aeq*x = beq 
+            Aeq*x = beq
             lb <= x <= ub
     """
     qp = IterativeQP(H, f, Aeq, beq, lb, ub, fix_pd)
     return qp.solve(verbose)
+
 
 def speye(n):
     """Create a sparse identity matrix"""
     r = range(n)
     return spmatrix(1.0, r, r)
 
+
 def spzeros(r, c=1):
     """Create a sparse zero vector or matrix"""
     return spmatrix([], [], [], (r, c))
+
 
 def _convert(H, f, Aeq, beq, lb, ub):
     """
@@ -132,6 +137,7 @@ def _convert(H, f, Aeq, beq, lb, ub):
     h = cvxmat(vstack([-lb, ub]))
     return P, q, G, h, A, b
 
+
 def _apply_options(option_dict):
     old_settings = {}
     for k, v in option_dict.items():
@@ -142,8 +148,8 @@ def _apply_options(option_dict):
             options[k] = v
     return old_settings
 
-class Objective(object):
 
+class Objective(object):
     def __init__(self, quadratic, linear):
         self.objective = quadratic + linear
         self.quadratic = quadratic

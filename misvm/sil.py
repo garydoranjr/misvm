@@ -6,6 +6,7 @@ import numpy as np
 from svm import SVM
 from util import slices
 
+
 class SIL(SVM):
     """
     Single-Instance Learning applied to MI data
@@ -38,7 +39,7 @@ class SIL(SVM):
         self._bags = [np.asmatrix(bag) for bag in bags]
         y = np.asmatrix(y).reshape((-1, 1))
         svm_X = np.vstack(self._bags)
-        svm_y = np.vstack([float(cls)*np.matrix(np.ones((len(bag), 1)))
+        svm_y = np.vstack([float(cls) * np.matrix(np.ones((len(bag), 1)))
                            for bag, cls in zip(self._bags, y)])
         super(SIL, self).fit(svm_X, svm_y)
 
@@ -56,6 +57,7 @@ class SIL(SVM):
         bags = [np.asmatrix(bag) for bag in bags]
         inst_preds = super(SIL, self).predict(np.vstack(bags))
         return _inst_to_bag_preds(inst_preds, bags)
+
 
 def _inst_to_bag_preds(inst_preds, bags):
     return np.array([np.max(inst_preds[slice(*bidx)])

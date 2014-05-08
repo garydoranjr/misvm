@@ -14,10 +14,12 @@ import os
 
 import hashlib
 import time
+
 CACHE_CUTOFF_T = 10
 CACHE_DIR = '.kernel_cache'
 
 from util import spdiag, slices
+
 
 def by_name(full_name, gamma=None, p=None, use_caching=False):
     parts = full_name.split('_')
@@ -27,7 +29,8 @@ def by_name(full_name, gamma=None, p=None, use_caching=False):
         # See if second part is a number
         value = float(parts[0])
         parts.pop(0)
-    except: pass
+    except:
+        pass
 
     if name == 'linear':
         kernel = linear
@@ -59,17 +62,22 @@ def by_name(full_name, gamma=None, p=None, use_caching=False):
         kernel_function.name = full_name
     return kernel_function
 
+
 def averaging_norm(x, *args):
     return float(x.shape[0])
+
 
 def featurespace_norm(x, k):
     return math.sqrt(np.sum(k(x, x)))
 
+
 def no_norm(x, k):
     return 1.0
 
+
 def _hash_array(x):
     return hashlib.sha1(x).hexdigest()
+
 
 def cached_kernel(K):
     def cached_K(X, Y):
@@ -95,21 +103,23 @@ def cached_kernel(K):
                 os.mkdir(CACHE_DIR)
             savemat(cache_file, {'k': result}, oned_as='column')
         return result
-        
+
     return cached_K
+
 
 def set_kernel(k, normalizer=no_norm):
     """
     Decorator that makes a normalized
     set kernel out of a standard kernel k
     """
+
     def K(X, Y):
         if type(X) == list:
             norm = lambda x: normalizer(x, k)
             x_norm = matrix(map(norm, X))
             if id(X) == id(Y):
                 # Optimize for symmetric case
-                norms = x_norm.T*x_norm
+                norms = x_norm.T * x_norm
                 if all(len(bag) == 1 for bag in X):
                     # Optimize for singleton bags
                     instX = vstack(X)
@@ -117,14 +127,14 @@ def set_kernel(k, normalizer=no_norm):
                 else:
                     # Only need to compute half of
                     # the matrix if it's symmetric
-                    upper = matrix([i*[0] + [np.sum(k(x, y))
-                                             for y in Y[i:]]
+                    upper = matrix([i * [0] + [np.sum(k(x, y))
+                                               for y in Y[i:]]
                                     for i, x in enumerate(X, 1)])
                     diag = np.array([np.sum(k(x, x)) for x in X])
                     raw_kernel = upper + upper.T + spdiag(diag)
             else:
                 y_norm = matrix(map(norm, Y))
-                norms = x_norm.T*y_norm
+                norms = x_norm.T * y_norm
                 raw_kernel = k(vstack(X), vstack(Y))
                 lensX = map(len, X)
                 lensY = map(len, Y)
@@ -137,24 +147,33 @@ def set_kernel(k, normalizer=no_norm):
             return np.divide(raw_kernel, norms)
         else:
             return k(X, Y)
+
     return K
+
 
 def linear(x, y):
     """Linear kernel x'*y"""
-    return x*y.T
+    return x * y.T
+
 
 def quadratic(x, y):
     """Quadratic kernel (1 + x'*y)^2"""
-    return np.square(1e0 + x*y.T)
+    return np.square(1e0 + x * y.T)
+
 
 def polynomial(p):
     """General polynomial kernel (1 + x'*y)^p"""
+
     def p_kernel(x, y):
-        return np.power(1e0 + x*y.T, p)
+        return np.power(1e0 + x * y.T, p)
+
     return p_kernel
+
 
 def rbf(gamma):
     """Radial Basis Function"""
+
     def rbf_kernel(x, y):
-        return matrix(np.exp(-gamma*cdist(x, y, 'sqeuclidean')))
+        return matrix(np.exp(-gamma * cdist(x, y, 'sqeuclidean')))
+
     return rbf_kernel

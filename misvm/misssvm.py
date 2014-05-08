@@ -11,6 +11,7 @@ from kernel import by_name as kernel_by_name
 from mica import MICA
 from cccp import CCCP
 
+
 class MissSVM(MICA):
     """
     Semi-supervised learning applied to MI data (Zhou & Xu 2007)
@@ -50,9 +51,9 @@ class MissSVM(MICA):
         bs = BagSplitter(self._bags,
                          np.asmatrix(y).reshape((-1, 1)))
         self._X = np.vstack([bs.pos_instances,
-                              bs.pos_instances,
-                              bs.pos_instances,
-                              bs.neg_instances])
+                             bs.pos_instances,
+                             bs.pos_instances,
+                             bs.neg_instances])
         self._y = np.vstack([np.matrix(np.ones((bs.X_p + bs.L_p, 1))),
                              -np.matrix(np.ones((bs.L_p + bs.L_n, 1)))])
         if self.scale_C:
@@ -62,15 +63,15 @@ class MissSVM(MICA):
 
         # Setup SVM and adjust constraints
         _, _, f, A, b, lb, ub = self._setup_svm(self._y, self._y, C)
-        ub[:bs.X_p] *= (float(bs.L_n)/float(bs.X_p))
-        ub[bs.X_p : bs.X_p + 2*bs.L_p] *= (float(bs.L_n)/float(bs.L_p))
+        ub[:bs.X_p] *= (float(bs.L_n) / float(bs.X_p))
+        ub[bs.X_p: bs.X_p + 2 * bs.L_p] *= (float(bs.L_n) / float(bs.L_p))
         K = kernel_by_name(self.kernel, gamma=self.gamma, p=self.p)(self._X, self._X)
         D = spdiag(self._y)
         ub0 = np.matrix(ub)
-        ub0[bs.X_p : bs.X_p + 2*bs.L_p] *= 0.5
+        ub0[bs.X_p: bs.X_p + 2 * bs.L_p] *= 0.5
 
         def get_V(pos_classifications):
-            eye_n = bs.L_n + 2*bs.L_p
+            eye_n = bs.L_n + 2 * bs.L_p
             top = np.zeros((bs.X_p, bs.L_p))
             for row, (i, j) in enumerate(slices(bs.pos_groups)):
                 top[row, i:j] = _grad_softmin(-pos_classifications[i:j], self.alpha).flat
@@ -79,17 +80,19 @@ class MissSVM(MICA):
 
         V0 = get_V(np.matrix(np.zeros((bs.L_p, 1))))
 
-        qp = IterativeQP(D*V0*K*V0.T*D, f, A, b, lb, ub0)
+        qp = IterativeQP(D * V0 * K * V0.T * D, f, A, b, lb, ub0)
 
         best_obj = float('inf')
         best_svm = None
         for rr in range(self.restarts + 1):
             if rr == 0:
-                if self.verbose: print 'Non-random start...'
+                if self.verbose:
+                    print 'Non-random start...'
                 # Train on instances
                 alphas, obj = qp.solve(self.verbose)
             else:
-                if self.verbose: print 'Random restart %d of %d...' % (rr, self.restarts)
+                if self.verbose:
+                    print 'Random restart %d of %d...' % (rr, self.restarts)
                 alphas = np.matrix([uniform(0.0, 1.0) for i in xrange(len(lb))]).T
                 obj = Objective(0.0, 0.0)
             svm = MICA(kernel=self.kernel, gamma=self.gamma, p=self.p,
@@ -109,7 +112,7 @@ class MissSVM(MICA):
 
                 def iterate(cself, svm, obj_val):
                     cself.mention('Linearizing constraints...')
-                    classifications = svm._predictions[bs.X_p : bs.X_p + bs.L_p]
+                    classifications = svm._predictions[bs.X_p: bs.X_p + bs.L_p]
                     V = get_V(classifications)
 
                     cself.mention('Computing slacks...')
@@ -127,11 +130,11 @@ class MissSVM(MICA):
                                              for pair in all_slacks])
                     # Stack results into one column
                     slack_grads = np.vstack([np.ones((bs.X_p, 1)),
-                                             slack_grads[:,0],
-                                             slack_grads[:,1],
+                                             slack_grads[:, 0],
+                                             slack_grads[:, 1],
                                              np.ones((bs.L_n, 1))])
                     # Update QP
-                    qp.update_H(D*V*K*V.T*D)
+                    qp.update_H(D * V * K * V.T * D)
                     qp.update_ub(np.multiply(ub, slack_grads))
 
                     # Re-solve
@@ -168,6 +171,7 @@ class MissSVM(MICA):
             self._compute_separator(best_svm._K)
             self._bag_predictions = self.predict(self._bags)
 
+
 def _grad_softmin(x, alpha=1e4):
     """
     Computes the gradient of min function,
@@ -180,5 +184,5 @@ def _grad_softmin(x, alpha=1e4):
     grad = np.matrix(np.zeros(x.shape))
     minimizers = (x == min(x.flat))
     n = float(np.sum(minimizers))
-    grad[np.nonzero(minimizers)] = 1.0/n
+    grad[np.nonzero(minimizers)] = 1.0 / n
     return grad

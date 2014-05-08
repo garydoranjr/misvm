@@ -7,6 +7,7 @@ from quadprog import quadprog
 from kernel import by_name as kernel_by_name
 from util import spdiag
 
+
 class SVM(object):
     """
     A standard supervised SVM implementation.
@@ -82,9 +83,9 @@ class SVM(object):
             _sv_K = _sv_all_K.T[self._sv].T
             e = np.matrix(np.ones((n, 1)))
             D = spdiag(self._sv_y)
-            self._b = float(e.T*D*e - self._sv_alphas.T*D*_sv_K*e) / n
+            self._b = float(e.T * D * e - self._sv_alphas.T * D * _sv_K * e) / n
             self._predictions = np.array(self._b
-                + self._sv_alphas.T*D*_sv_all_K).reshape((-1,))
+                                         + self._sv_alphas.T * D * _sv_all_K).reshape((-1,))
 
     def predict(self, X):
         """
@@ -98,7 +99,7 @@ class SVM(object):
         else:
             kernel = kernel_by_name(self.kernel, p=self.p, gamma=self.gamma)
             K = kernel(np.asmatrix(X), self._sv_X)
-            return np.array(self._b + K*spdiag(self._sv_y)*self._sv_alphas).reshape((-1,))
+            return np.array(self._b + K * spdiag(self._sv_y) * self._sv_alphas).reshape((-1,))
 
     def _setup_svm(self, examples, classes, C):
         kernel = kernel_by_name(self.kernel, gamma=self.gamma, p=self.p)
@@ -112,7 +113,7 @@ class SVM(object):
         else:
             K = _smart_kernel(kernel, examples)
             D = spdiag(classes)
-            H = D*K*D
+            H = D * K * D
 
         # Term for -sum of alphas
         f = -e
@@ -124,11 +125,12 @@ class SVM(object):
         # 0 <= alpha_i <= C
         lb = np.matrix(np.zeros((n, 1)))
         if type(C) == float:
-            ub = C*e
+            ub = C * e
         else:
             # Allow for C to be an array
             ub = C
         return K, H, f, A, b, lb, ub
+
 
 def _smart_kernel(kernel, examples):
     """
@@ -139,7 +141,8 @@ def _smart_kernel(kernel, examples):
     """
     if type(examples) == list:
         for i, bag in enumerate(examples):
-            if len(bag) > 1: break
+            if len(bag) > 1:
+                break
         singletons, bags = examples[:i], examples[i:]
         if singletons and bags:
             ss = kernel(singletons, singletons)
