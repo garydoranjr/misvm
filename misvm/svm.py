@@ -6,9 +6,9 @@ import numpy as np
 from quadprog import quadprog
 from kernel import by_name as kernel_by_name
 from util import spdiag
+from sklearn.base import ClassifierMixin
 
-
-class SVM(object):
+class SVM(ClassifierMixin):
     """
     A standard supervised SVM implementation.
     """
