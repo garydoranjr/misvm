@@ -4,7 +4,7 @@ Implements mi-SVM and MI-SVM
 import numpy as np
 from random import uniform
 from cvxopt import matrix as cvxmat, sparse
-
+import inspect
 from sil import SIL
 from svm import SVM
 from cccp import CCCP
@@ -18,7 +18,7 @@ class MISVM(SIL):
     The MI-SVM approach of Andrews, Tsochantaridis, & Hofmann (2002)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, restarts=0, max_iters=0, **kwargs):
         """
         @param kernel : the desired kernel function; can be linear, quadratic,
                         polynomial, or rbf [default: linear]
@@ -35,9 +35,9 @@ class MISVM(SIL):
         @param max_iters : the maximum number of iterations in the outer loop of
                            the optimization procedure [default: 50]
         """
-        self.restarts = kwargs.pop('restarts', 0)
-        self.max_iters = kwargs.pop('max_iters', 50)
-        super(MISVM, self).__init__(*args, **kwargs)
+        self.restarts = restarts
+        self.max_iters = max_iters
+        super(MISVM, self).__init__(**kwargs)
 
     def fit(self, bags, y):
         """
@@ -160,6 +160,13 @@ class MISVM(SIL):
         super(SIL, self)._compute_separator(K)
         self._bag_predictions = self.predict(self._bags)
 
+    def get_params(self, deep=True):
+        super_args = super(MISVM, self).get_params()
+        args, _, _, _ = inspect.getargspec(self.__init__)
+        args.pop(0)
+        super_args.update({key: getattr(self, key, None) for key in args})
+        return super_args
+
 
 class miSVM(SIL):
     """
@@ -274,6 +281,13 @@ class miSVM(SIL):
             self._alphas = best_svm._alphas
             self._objective = best_svm._objective
             self._compute_separator(best_svm._K)
+
+    def get_params(self, deep=True):
+        super_args = super(MISVM, self).get_params()
+        args, _, _, _ = inspect.getargspec(self.__init__)
+        args.pop(0)
+        super_args.update({key: getattr(self, key, None) for key in args})
+        return super_args
 
 
 def _update_classes(x):

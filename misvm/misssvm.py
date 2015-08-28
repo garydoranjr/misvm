@@ -4,7 +4,7 @@ Implements MissSVM
 import numpy as np
 import scipy.sparse as sp
 from random import uniform
-
+import inspect
 from quadprog import IterativeQP, Objective
 from util import BagSplitter, spdiag, slices
 from kernel import by_name as kernel_by_name
@@ -17,7 +17,7 @@ class MissSVM(MICA):
     Semi-supervised learning applied to MI data (Zhou & Xu 2007)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, alpha=1e4, **kwargs):
         """
         @param kernel : the desired kernel function; can be linear, quadratic,
                         polynomial, or rbf [default: linear]
@@ -35,8 +35,8 @@ class MissSVM(MICA):
                            the optimization procedure [default: 50]
         @param alpha : the softmax parameter [default: 1e4]
         """
-        self.alpha = kwargs.pop('alpha', 1e4)
-        super(MissSVM, self).__init__(*args, **kwargs)
+        self.alpha = alpha
+        super(MissSVM, self).__init__(**kwargs)
         self._bags = None
         self._sv_bags = None
         self._bag_predictions = None
@@ -170,6 +170,13 @@ class MissSVM(MICA):
             self._objective = best_svm._objective
             self._compute_separator(best_svm._K)
             self._bag_predictions = self.predict(self._bags)
+
+    def get_params(self, deep=True):
+        super_args = super(MissSVM, self).get_params()
+        args, _, _, _ = inspect.getargspec(MissSVM.__init__)
+        args.pop(0)
+        super_args.update({key: getattr(self, key, None) for key in args})
+        return super_args
 
 
 def _grad_softmin(x, alpha=1e4):
