@@ -11,6 +11,8 @@ from cccp import CCCP
 from quadprog import IterativeQP, spzeros, speye
 from kernel import by_name as kernel_by_name
 from util import partition, BagSplitter, spdiag, rand_convex, slices
+from scipy.sparse import issparse
+import pdb
 
 
 class MISVM(SIL):
@@ -38,14 +40,24 @@ class MISVM(SIL):
         self.restarts = restarts
         self.max_iters = max_iters
         super(MISVM, self).__init__(**kwargs)
-
+    
+    @profile
     def fit(self, bags, y):
         """
         @param bags : a sequence of n bags; each bag is an m-by-k array-like
                       object containing m instances with k features
         @param y : an array-like object of length n containing -1/+1 labels
         """
-        self._bags = [np.asmatrix(bag) for bag in bags]
+        def transform(mx):
+            """
+            Transform into np.matrix if array/list
+            ignore scipy.sparse matrix
+            """
+            if issparse(mx):
+                return mx.todense()
+            return np.asmatrix(mx)
+
+        self._bags = [transform(bag) for bag in bags]
         y = np.asmatrix(y).reshape((-1, 1))
 
         bs = BagSplitter(self._bags, y)
