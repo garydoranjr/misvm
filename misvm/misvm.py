@@ -41,7 +41,6 @@ class MISVM(SIL):
         self.max_iters = max_iters
         super(MISVM, self).__init__(**kwargs)
     
-    @profile
     def fit(self, bags, y):
         """
         @param bags : a sequence of n bags; each bag is an m-by-k array-like
