@@ -5,8 +5,8 @@ import sys
 import numpy as np
 import scipy.sparse as sp
 from cvxopt import matrix as cvxmat, sparse, spmatrix
-from cvxopt.solvers import lp, options
-
+from cvxopt.solvers import lp
+import inspect
 from quadprog import IterativeQP, spzeros as spz, speye as spI, _apply_options
 from util import spdiag, BagSplitter, slices, rand_convex
 from kernel import by_name as kernel_by_name
@@ -19,7 +19,7 @@ class MICA(SVM):
     The MICA approach of Mangasarian & Wild (2008)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, regularization='L2', restarts=0, max_iters=50, **kwargs):
         """
         @param kernel : the desired kernel function; can be linear, quadratic,
                         polynomial, or rbf [default: linear]
@@ -37,13 +37,13 @@ class MICA(SVM):
                            the optimization procedure [default: 50]
         @param regularization : currently only L2 regularization is implemented
         """
-        self.regularization = kwargs.pop('regularization', 'L2')
+        self.regularization = regularization
         if not self.regularization in ('L2',):
             raise ValueError('Invalid regularization "%s"'
                              % self.regularization)
-        self.restarts = kwargs.pop('restarts', 0)
-        self.max_iters = kwargs.pop('max_iters', 50)
-        super(MICA, self).__init__(*args, **kwargs)
+        self.restarts = restarts
+        self.max_iters = max_iters
+        super(MICA, self).__init__(**kwargs)
         self._bags = None
         self._sv_bags = None
         self._bag_predictions = None
@@ -188,6 +188,17 @@ class MICA(SVM):
             return np.array([np.max(self._b + self._alphas.T * D * self._V *
                                     k(self._X, bag))
                              for bag in bags])
+
+    def get_params(self, deep=True):
+        """
+        return params
+        """
+        super_args, _, _, _ = inspect.getargspec(super(MICA, self).__init__)
+        args, _, _, _ = inspect.getargspec(MICA.__init__)
+        args.pop(0)
+        super_args.pop(0)
+        args += super_args
+        return {key: getattr(self, key, None) for key in args}
 
 
 def linprog(*args, **kwargs):
