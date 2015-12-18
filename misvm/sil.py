@@ -47,16 +47,25 @@ class SIL(SVM):
         super(SIL, self)._compute_separator(K)
         self._bag_predictions = _inst_to_bag_preds(self._predictions, self._bags)
 
-    def predict(self, bags):
+    def predict(self, bags, instancePrediction = None):
         """
         @param bags : a sequence of n bags; each bag is an m-by-k array-like
                       object containing m instances with k features
+        @param instancePrediction : flag to indicate if instance predictions 
+                                    should be given as output.
         @return : an array of length n containing real-valued label predictions
                   (threshold at zero to produce binary predictions)
         """
+        if instancePrediction is None:
+            instancePrediction = False
+            
         bags = [np.asmatrix(bag) for bag in bags]
         inst_preds = super(SIL, self).predict(np.vstack(bags))
-        return _inst_to_bag_preds(inst_preds, bags)
+
+        if instancePrediction:        
+            return _inst_to_bag_preds(inst_preds, bags), inst_preds
+        else:
+            return _inst_to_bag_preds(inst_preds, bags)
 
     def get_params(self, deep=True):
         """
