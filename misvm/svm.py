@@ -119,7 +119,7 @@ class SVM(ClassifierMixin, BaseEstimator):
         f = -e
 
         # Sum(y_i * alpha_i) = 0
-        A = classes.T
+        A = classes.T.astype(float)
         b = np.matrix([0.0])
 
         # 0 <= alpha_i <= C
