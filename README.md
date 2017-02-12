@@ -124,6 +124,18 @@ Here `bags` has the same format as for `fit`, and the function returns an array
 of real-valued predictions (use `numpy.sign(labels)` to get -1/+1 class
 predictions).
 
+In order to get instance-level predictions from a classifier, use the
+`instancePrediction` flag, as in:
+
+    >>> bag_labels, instance_labels = classifier.predict(bags, instancePrediction=True)
+
+The `instancePrediction` flag is not available for bag-level classifiers such
+as the NSK. However, you can always predict the labels of "singleton" bags
+containing a single instance to assign a label to that instance. In this case,
+one should use caution in interpreting the label of an instance produced by a
+bag-level classifier, since these classifiers are designed to make predictions
+based on properties of an entire bag.
+
 An example script is included that trains classifiers on the [musk1
 dataset](http://archive.ics.uci.edu/ml/datasets/Musk+(Version+1)); see:
 > Bache, K. & Lichman, M. (2013). UCI Machine Learning Repository
