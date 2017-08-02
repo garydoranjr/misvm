@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function, division
+
 import numpy as np
 
 from misvmio import parse_c45, bag_set
@@ -40,7 +42,7 @@ def main():
         accuracies[algorithm] = np.average(test_labels == np.sign(predictions))
 
     for algorithm, accuracy in accuracies.items():
-        print '\n%s Accuracy: %.1f%%' % (algorithm, 100 * accuracy)
+        print('\n%s Accuracy: %.1f%%' % (algorithm, 100 * accuracy))
 
 
 if __name__ == '__main__':

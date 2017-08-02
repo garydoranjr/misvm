@@ -1,17 +1,18 @@
 """
 Implements the MICA algorithm
 """
+from __future__ import print_function, division
 import sys
 import numpy as np
 import scipy.sparse as sp
 from cvxopt import matrix as cvxmat, sparse, spmatrix
 from cvxopt.solvers import lp
 import inspect
-from quadprog import IterativeQP, spzeros as spz, speye as spI, _apply_options
-from util import spdiag, BagSplitter, slices, rand_convex
-from kernel import by_name as kernel_by_name
-from svm import SVM
-from cccp import CCCP
+from misvm.quadprog import IterativeQP, spzeros as spz, speye as spI, _apply_options
+from misvm.util import spdiag, BagSplitter, slices, rand_convex
+from misvm.kernel import by_name as kernel_by_name
+from misvm.svm import SVM
+from misvm.cccp import CCCP
 
 
 class MICA(SVM):
@@ -140,12 +141,12 @@ class MICA(SVM):
         for rr in range(self.restarts + 1):
             if rr == 0:
                 if self.verbose:
-                    print 'Non-random start...'
+                    print('Non-random start...')
                 upsilon0 = np.matrix(np.vstack([np.ones((size, 1)) / float(size)
                                                 for size in bs.pos_groups]))
             else:
                 if self.verbose:
-                    print 'Random restart %d of %d...' % (rr, self.restarts)
+                    print('Random restart %d of %d...' % (rr, self.restarts))
                 upsilon0 = np.matrix(np.vstack([rand_convex(size).T
                                                 for size in bs.pos_groups]))
             cccp = MICACCCP(verbose=self.verbose, alphas=None, upsilon=upsilon0,
@@ -215,8 +216,8 @@ def linprog(*args, **kwargs):
     # Check return status
     status = results['status']
     if not status == 'optimal':
-        print >> sys.stderr, ('Warning: termination of lp with status: %s'
-                              % status)
+        print('Warning: termination of lp with status: %s'
+              % status, file=sys.stderr)
 
     # Convert back to NumPy matrix
     # and return solution

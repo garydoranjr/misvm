@@ -1,10 +1,11 @@
 """
 Implements Single Instance Learning SVM
 """
+from __future__ import print_function, division
 import numpy as np
 import inspect
-from svm import SVM
-from util import slices
+from misvm.svm import SVM
+from misvm.util import slices
 
 
 class SIL(SVM):

@@ -18,13 +18,13 @@ The following algorithms are implemented:
 """
 __name__ = 'misvm'
 __version__ = '1.0'
-from svm import SVM
-from sil import SIL
-from nsk import NSK
-from smil import sMIL
-from misvm import miSVM, MISVM
-from stk import STK
-from stmil import stMIL
-from sbmil import sbMIL
-from mica import MICA
-from misssvm import MissSVM
+from misvm.svm import SVM
+from misvm.sil import SIL
+from misvm.nsk import NSK
+from misvm.smil import sMIL
+from misvm.misvm import miSVM, MISVM
+from misvm.stk import STK
+from misvm.stmil import stMIL
+from misvm.sbmil import sbMIL
+from misvm.mica import MICA
+from misvm.misssvm import MissSVM
