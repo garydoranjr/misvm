@@ -5,6 +5,7 @@ A kernel should take two arguments,
 each of which is a list of examples
 as rows of a numpy matrix
 """
+from __future__ import print_function, division
 from numpy import matrix, vstack, hstack
 import numpy as np
 from scipy.spatial.distance import cdist
@@ -18,7 +19,7 @@ import time
 CACHE_CUTOFF_T = 10
 CACHE_DIR = '.kernel_cache'
 
-from util import spdiag, slices
+from misvm.util import spdiag, slices
 
 
 def by_name(full_name, gamma=None, p=None, use_caching=False):
@@ -90,7 +91,7 @@ def cached_kernel(K):
         full_hash = hashlib.sha1(x_hash + y_hash + K.name).hexdigest()
         cache_file = os.path.join(CACHE_DIR, full_hash + '.mat')
         if os.path.exists(cache_file):
-            print 'Using cached result!'
+            print('Using cached result!')
             result = np.matrix(loadmat(cache_file)['k'])
             return result
         # Check cache
@@ -98,7 +99,7 @@ def cached_kernel(K):
         result = K(X, Y)
         tf = time.time()
         if (tf - t0) > CACHE_CUTOFF_T:
-            print 'Caching result...'
+            print('Caching result...')
             if not os.path.exists(CACHE_DIR):
                 os.mkdir(CACHE_DIR)
             savemat(cache_file, {'k': result}, oned_as='column')

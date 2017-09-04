@@ -2,12 +2,13 @@
 Implements the Normalized Set Kernel
 of Gartner et al.
 """
+from __future__ import print_function, division
 import numpy as np
 
-from quadprog import quadprog
-from kernel import by_name as kernel_by_name
-from util import spdiag
-from svm import SVM
+from misvm.quadprog import quadprog
+from misvm.kernel import by_name as kernel_by_name
+from misvm.util import spdiag
+from misvm.svm import SVM
 
 
 class NSK(SVM):
@@ -51,12 +52,12 @@ class NSK(SVM):
             C = self.C
 
         if self.verbose:
-            print 'Setup QP...'
+            print('Setup QP...')
         K, H, f, A, b, lb, ub = self._setup_svm(self._bags, self._y, C)
 
         # Solve QP
         if self.verbose:
-            print 'Solving QP...'
+            print('Solving QP...')
         self._alphas, self._objective = quadprog(H, f, A, b, lb, ub,
                                                  self.verbose)
         self._compute_separator(K)

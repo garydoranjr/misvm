@@ -1,12 +1,13 @@
 """
 Implements sMIL
 """
+from __future__ import print_function, division
 import numpy as np
 
-from quadprog import quadprog
-from kernel import by_name as kernel_by_name
-from util import BagSplitter
-from nsk import NSK
+from misvm.quadprog import quadprog
+from misvm.kernel import by_name as kernel_by_name
+from misvm.util import BagSplitter
+from misvm.nsk import NSK
 
 
 class sMIL(NSK):
@@ -55,7 +56,7 @@ class sMIL(NSK):
                        bC * np.ones((bs.X_p, 1))])
 
         if self.verbose:
-            print 'Setup QP...'
+            print('Setup QP...')
         K, H, f, A, b, lb, ub = self._setup_svm(self._bags, self._y, C)
 
         # Adjust f with balancing terms
@@ -65,7 +66,7 @@ class sMIL(NSK):
         f = np.multiply(f, factors)
 
         if self.verbose:
-            print 'Solving QP...'
+            print('Solving QP...')
         self._alphas, self._objective = quadprog(H, f, A, b, lb, ub,
                                                  self.verbose)
         self._compute_separator(K)

@@ -1,9 +1,10 @@
 """
 Implements the STK of Gartner et al.
 """
+from __future__ import print_function, division
 import numpy as np
 
-from svm import SVM
+from misvm.svm import SVM
 
 
 class STK(SVM):

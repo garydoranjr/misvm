@@ -1,15 +1,16 @@
 """
 Implements MissSVM
 """
+from __future__ import print_function, division
 import numpy as np
 import scipy.sparse as sp
 from random import uniform
 import inspect
-from quadprog import IterativeQP, Objective
-from util import BagSplitter, spdiag, slices
-from kernel import by_name as kernel_by_name
-from mica import MICA
-from cccp import CCCP
+from misvm.quadprog import IterativeQP, Objective
+from misvm.util import BagSplitter, spdiag, slices
+from misvm.kernel import by_name as kernel_by_name
+from misvm.mica import MICA
+from misvm.cccp import CCCP
 
 
 class MissSVM(MICA):
@@ -87,13 +88,13 @@ class MissSVM(MICA):
         for rr in range(self.restarts + 1):
             if rr == 0:
                 if self.verbose:
-                    print 'Non-random start...'
+                    print('Non-random start...')
                 # Train on instances
                 alphas, obj = qp.solve(self.verbose)
             else:
                 if self.verbose:
-                    print 'Random restart %d of %d...' % (rr, self.restarts)
-                alphas = np.matrix([uniform(0.0, 1.0) for i in xrange(len(lb))]).T
+                    print('Random restart %d of %d...' % (rr, self.restarts))
+                alphas = np.matrix([uniform(0.0, 1.0) for i in range(len(lb))]).T
                 obj = Objective(0.0, 0.0)
             svm = MICA(kernel=self.kernel, gamma=self.gamma, p=self.p,
                        verbose=self.verbose, sv_cutoff=self.sv_cutoff)

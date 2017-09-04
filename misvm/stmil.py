@@ -1,14 +1,15 @@
 """
 Implements stMIL
 """
+from __future__ import print_function, division
 import numpy as np
 from random import uniform
 
-from nsk import NSK
-from smil import sMIL
-from quadprog import IterativeQP
-from cccp import CCCP
-from util import BagSplitter, spdiag
+from misvm.nsk import NSK
+from misvm.smil import sMIL
+from misvm.quadprog import IterativeQP
+from misvm.cccp import CCCP
+from misvm.util import BagSplitter, spdiag
 
 
 class stMIL(NSK):
@@ -73,25 +74,25 @@ class stMIL(NSK):
         for rr in range(self.restarts + 1):
             if rr == 0:
                 if self.verbose:
-                    print 'Non-random start...'
+                    print('Non-random start...')
                 if self.verbose:
-                    print 'Initial sMIL solution...'
+                    print('Initial sMIL solution...')
                 smil = sMIL(kernel=self.kernel, C=self.C,
                             gamma=self.gamma, p=self.p, scale_C=self.scale_C)
                 smil.fit(bags, y)
                 if self.verbose:
-                    print 'Computing instance classes...'
+                    print('Computing instance classes...')
                 initial_svm = smil
                 initial_classes = np.sign(smil.predict(bs.pos_inst_as_bags))
             else:
                 if self.verbose:
-                    print 'Random restart %d of %d...' % (rr, self.restarts)
+                    print('Random restart %d of %d...' % (rr, self.restarts))
                 initial_svm = None
                 initial_classes = np.matrix([np.sign([uniform(-1.0, 1.0)
                                                       for i in range(bs.L_p)])]).T
 
             if self.verbose:
-                print 'Setup SVM and QP...'
+                print('Setup SVM and QP...')
             # Setup SVM and QP
             K, H, f, A, b, lb, ub = self._setup_svm(self._all_bags, all_classes, C)
             # Adjust f with balancing terms

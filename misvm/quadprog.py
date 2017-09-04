@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 from cvxopt import matrix as cvxmat, sparse, spmatrix
 from cvxopt.solvers import qp, options
 from sys import stderr
@@ -69,8 +70,8 @@ class IterativeQP(object):
                 # due to numerical error
                 if self.fix_pd:
                     eps = 10.0 ** i
-                    print 'Rank error while solving, adjusting to fix...'
-                    print 'Using epsilon = %.1e' % eps
+                    print('Rank error while solving, adjusting to fix...')
+                    print('Using epsilon = %.1e' % eps)
                     self._ensure_pd(eps)
                 else:
                     raise e
@@ -83,8 +84,8 @@ class IterativeQP(object):
         # Check return status
         status = results['status']
         if not status == 'optimal':
-            print >> stderr, ('Warning: termination of qp with status: %s'
-                              % status)
+            print('Warning: termination of qp with status: %s'
+                  % status, file=stderr)
 
         # Convert back to NumPy matrix
         # and return solution

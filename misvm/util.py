@@ -1,6 +1,7 @@
 """
 Utility functions and classes
 """
+from __future__ import print_function, division
 import numpy as np
 import scipy.sparse as sp
 from itertools import chain

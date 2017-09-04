@@ -1,10 +1,11 @@
 """
 Implements a standard SVM
 """
+from __future__ import print_function, division
 import numpy as np
-from quadprog import quadprog
-from kernel import by_name as kernel_by_name
-from util import spdiag
+from misvm.quadprog import quadprog
+from misvm.kernel import by_name as kernel_by_name
+from misvm.util import spdiag
 from sklearn.base import ClassifierMixin, BaseEstimator
 
 

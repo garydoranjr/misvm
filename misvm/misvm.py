@@ -1,16 +1,17 @@
 """
 Implements mi-SVM and MI-SVM
 """
+from __future__ import print_function, division
 import numpy as np
 from random import uniform
 from cvxopt import matrix as cvxmat, sparse
 import inspect
-from sil import SIL
-from svm import SVM
-from cccp import CCCP
-from quadprog import IterativeQP, spzeros, speye
-from kernel import by_name as kernel_by_name
-from util import partition, BagSplitter, spdiag, rand_convex, slices
+from misvm.sil import SIL
+from misvm.svm import SVM
+from misvm.cccp import CCCP
+from misvm.quadprog import IterativeQP, spzeros, speye
+from misvm.kernel import by_name as kernel_by_name
+from misvm.util import partition, BagSplitter, spdiag, rand_convex, slices
 from scipy.sparse import issparse
 import pdb
 
@@ -65,11 +66,11 @@ class MISVM(SIL):
         for rr in range(self.restarts + 1):
             if rr == 0:
                 if self.verbose:
-                    print 'Non-random start...'
+                    print('Non-random start...')
                 pos_bag_avgs = np.vstack([np.average(bag, axis=0) for bag in bs.pos_bags])
             else:
                 if self.verbose:
-                    print 'Random restart %d of %d...' % (rr, self.restarts)
+                    print('Random restart %d of %d...' % (rr, self.restarts))
                 pos_bag_avgs = np.vstack([rand_convex(len(bag)) * bag for bag in bs.pos_bags])
 
             intial_instances = np.vstack([bs.neg_instances, pos_bag_avgs])
@@ -220,12 +221,12 @@ class miSVM(SIL):
         for rr in range(self.restarts + 1):
             if rr == 0:
                 if self.verbose:
-                    print 'Non-random start...'
+                    print('Non-random start...')
                 initial_classes = np.vstack([-np.ones((bs.L_n, 1)),
                                              np.ones((bs.L_p, 1))])
             else:
                 if self.verbose:
-                    print 'Random restart %d of %d...' % (rr, self.restarts)
+                    print('Random restart %d of %d...' % (rr, self.restarts))
                 rand_classes = np.matrix([np.sign([uniform(-1.0, 1.0)
                                                    for i in range(bs.L_p)])]).T
                 initial_classes = np.vstack([-np.ones((bs.L_n, 1)),

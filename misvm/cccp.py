@@ -3,6 +3,7 @@ Implements standard code for problems that
 require the Concave-Convex Procedure (CCCP),
 or similar iteration.
 """
+from __future__ import print_function, division
 from sys import stderr
 
 
@@ -19,25 +20,25 @@ class CCCP(object):
 
     def mention(self, message):
         if self.verbose:
-            print message
+            print(message)
 
     def solve(self):
         """
         Called to solve the CCCP problem
         """
-        for i in xrange(1, self.max_iters):
+        for i in range(1, self.max_iters):
             self.mention('\nIteration %d...' % i)
             try:
                 self.kwargs, solution = self.iterate(**self.kwargs)
             except Exception as e:
                 if self.verbose:
-                    print >> stderr, 'Warning: Bailing due to error: %s' % e
+                    print('Warning: Bailing due to error: %s' % e, file=stderr)
                 return self.bailout(**self.kwargs)
             if solution is not None:
                 return solution
 
         if self.verbose:
-            print >> stderr, 'Warning: Max iterations exceeded'
+            print('Warning: Max iterations exceeded', file=stderr)
         return self.bailout(**self.kwargs)
 
     def iterate(self, **kwargs):
