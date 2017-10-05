@@ -22,7 +22,7 @@ from misvm.svm import SVM
 from misvm.sil import SIL
 from misvm.nsk import NSK
 from misvm.smil import sMIL
-from misvm.misvm import miSVM, MISVM
+from misvm.mi_svm import miSVM, MISVM
 from misvm.stk import STK
 from misvm.stmil import stMIL
 from misvm.sbmil import sbMIL
