@@ -295,7 +295,7 @@ class miSVM(SIL):
             self._compute_separator(best_svm._K)
 
     def get_params(self, deep=True):
-        super_args = super(MISVM, self).get_params()
+        super_args = super(miSVM, self).get_params()
         args, _, _, _ = inspect.getargspec(self.__init__)
         args.pop(0)
         super_args.update({key: getattr(self, key, None) for key in args})
