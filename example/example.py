@@ -11,13 +11,24 @@ def main():
     # Load list of C4.5 Examples
     example_set = parse_c45('musk1')
 
+    # Get stats to normalize data
+    raw_data = np.array(example_set.to_float())
+    data_mean = np.average(raw_data, axis=0)
+    data_std  = np.std(raw_data, axis=0)
+    data_std[np.nonzero(data_std == 0.0)] = 1.0
+    def normalizer(ex):
+        ex = np.array(ex)
+        normed = ((ex - data_mean) / data_std)
+        # The ...[:, 2:-1] removes first two columns and last column,
+        # which are the bag/instance ids and class label, as part of the
+        # normalization process
+        return normed[2:-1]
+
     # Group examples into bags
     bagset = bag_set(example_set)
 
     # Convert bags to NumPy arrays
-    # (The ...[:, 2:-1] removes first two columns and last column,
-    #  which are the bag/instance ids and class label)
-    bags = [np.array(b.to_float())[:, 2:-1] for b in bagset]
+    bags = [np.array(b.to_float(normalizer)) for b in bagset]
     labels = np.array([b.label for b in bagset], dtype=float)
     # Convert 0/1 labels to -1/1 labels
     labels = 2 * labels - 1
@@ -30,8 +41,8 @@ def main():
 
     # Construct classifiers
     classifiers = {}
-    classifiers['MissSVM'] = misvm.MissSVM(kernel='linear', C=1.0, max_iters=10)
-    classifiers['sbMIL'] = misvm.sbMIL(kernel='linear', eta=0.1, C=1.0)
+    classifiers['MissSVM'] = misvm.MissSVM(kernel='linear', C=1.0, max_iters=20)
+    classifiers['sbMIL'] = misvm.sbMIL(kernel='linear', eta=0.1, C=1e2)
     classifiers['SIL'] = misvm.SIL(kernel='linear', C=1.0)
 
     # Train/Evaluate classifiers
