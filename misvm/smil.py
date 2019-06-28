@@ -41,7 +41,7 @@ class sMIL(NSK):
                       object containing m instances with k features
         @param y : an array-like object of length n containing -1/+1 labels
         """
-        bs = BagSplitter(map(np.asmatrix, bags),
+        bs = BagSplitter(list(map(np.asmatrix, bags)),
                          np.asmatrix(y).reshape((-1, 1)))
         self._bags = bs.neg_inst_as_bags + bs.pos_bags
         self._y = np.matrix(np.vstack([-np.ones((bs.L_n, 1)),
