@@ -21,7 +21,7 @@ class MISVM(SIL):
     The MI-SVM approach of Andrews, Tsochantaridis, & Hofmann (2002)
     """
 
-    def __init__(self, restarts=0, max_iters=0, **kwargs):
+    def __init__(self, restarts=0, max_iters=50, **kwargs):
         """
         @param kernel : the desired kernel function; can be linear, quadratic,
                         polynomial, or rbf [default: linear]
