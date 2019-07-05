@@ -79,4 +79,4 @@ class SIL(SVM):
 
 def _inst_to_bag_preds(inst_preds, bags):
     return np.array([np.max(inst_preds[slice(*bidx)])
-                     for bidx in slices(map(len, bags))])
+                     for bidx in slices(list(map(len, bags)))])

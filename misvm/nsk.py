@@ -44,7 +44,7 @@ class NSK(SVM):
                       object containing m instances with k features
         @param y : an array-like object of length n containing -1/+1 labels
         """
-        self._bags = map(np.asmatrix, bags)
+        self._bags = list(map(np.asmatrix, bags))
         self._y = np.asmatrix(y).reshape((-1, 1))
         if self.scale_C:
             C = self.C / float(len(self._bags))
@@ -93,5 +93,5 @@ class NSK(SVM):
             return np.zeros(len(bags))
         else:
             kernel = kernel_by_name(self.kernel, p=self.p, gamma=self.gamma)
-            K = kernel(map(np.asmatrix, bags), self._sv_bags)
+            K = kernel(list(map(np.asmatrix, bags)), self._sv_bags)
             return np.array(self._b + K * spdiag(self._sv_y) * self._sv_alphas).reshape((-1,))

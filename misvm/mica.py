@@ -55,7 +55,7 @@ class MICA(SVM):
                       object containing m instances with k features
         @param y : an array-like object of length n containing -1/+1 labels
         """
-        self._bags = map(np.asmatrix, bags)
+        self._bags = list(map(np.asmatrix, bags))
         bs = BagSplitter(self._bags,
                          np.asmatrix(y).reshape((-1, 1)))
         self._X = bs.instances
@@ -235,4 +235,4 @@ def t(list_of_lists):
     Transpose a list of lists, since 'sparse'
     takes arguments in column-major order.
     """
-    return map(list, zip(*list_of_lists))
+    return list(map(list, zip(*list_of_lists)))
