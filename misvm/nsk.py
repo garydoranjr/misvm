@@ -4,7 +4,7 @@ of Gartner et al.
 """
 from __future__ import print_function, division
 import numpy as np
-
+import inspect
 from misvm.quadprog import quadprog
 from misvm.kernel import by_name as kernel_by_name
 from misvm.util import spdiag
