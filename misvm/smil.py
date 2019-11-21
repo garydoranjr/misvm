@@ -15,7 +15,7 @@ class sMIL(NSK):
     Sparse MIL (Bunescu & Mooney, 2007)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
         @param kernel : the desired kernel function; can be linear, quadratic,
                         polynomial, or rbf [default: linear]
@@ -33,7 +33,7 @@ class sMIL(NSK):
         @param sv_cutoff : the numerical cutoff for an example to be considered
                            a support vector [default: 1e-7]
         """
-        super(sMIL, self).__init__(*args, **kwargs)
+        super(sMIL, self).__init__(**kwargs)
 
     def fit(self, bags, y):
         """
