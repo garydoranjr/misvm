@@ -4,11 +4,13 @@ of Gartner et al.
 """
 from __future__ import print_function, division
 import numpy as np
-
+import inspect
 from misvm.quadprog import quadprog
 from misvm.kernel import by_name as kernel_by_name
 from misvm.util import spdiag
 from misvm.svm import SVM
+
+
 
 
 class NSK(SVM):
@@ -16,7 +18,7 @@ class NSK(SVM):
     Normalized set kernel of Gaertner, et al. (2002)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
         @param kernel : the desired kernel function; can be linear, quadratic,
                         polynomial, or rbf [default: linear]
@@ -33,7 +35,7 @@ class NSK(SVM):
         @param sv_cutoff : the numerical cutoff for an example to be considered
                            a support vector [default: 1e-7]
         """
-        super(NSK, self).__init__(*args, **kwargs)
+        super(NSK, self).__init__(**kwargs)
         self._bags = None
         self._sv_bags = None
         self._bag_predictions = None
@@ -95,3 +97,11 @@ class NSK(SVM):
             kernel = kernel_by_name(self.kernel, p=self.p, gamma=self.gamma)
             K = kernel(list(map(np.asmatrix, bags)), self._sv_bags)
             return np.array(self._b + K * spdiag(self._sv_y) * self._sv_alphas).reshape((-1,))
+
+    def get_params(self, deep=True):
+        """
+        return params
+        """
+        args, _, _, _ = inspect.getargspec(super(NSK, self).__init__)
+        args.pop(0)
+        return {key: getattr(self, key, None) for key in args}
