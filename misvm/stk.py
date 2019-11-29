@@ -2,6 +2,7 @@
 Implements the STK of Gartner et al.
 """
 from __future__ import print_function, division
+import inspect
 import numpy as np
 
 from misvm.svm import SVM
@@ -56,6 +57,13 @@ class STK(SVM):
         svm_X = _stats_from_bags(bags)
         return super(STK, self).predict(svm_X)
 
+    def get_params(self, deep=True):
+        """
+        return params
+        """
+        args, _, _, _ = inspect.getargspec(super(STK, self).__init__)
+        args.pop(0)
+        return {key: getattr(self, key, None) for key in args}
 
 def _stats_from_bags(bags):
     return np.vstack([np.hstack([np.min(bag, 0), np.max(bag, 0)])
