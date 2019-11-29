@@ -12,7 +12,7 @@ class STK(SVM):
     Statistics kernel of Gaertner, et al. (2002)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
         @param kernel : the desired kernel function; can be linear, quadratic,
                         polynomial, or rbf [default: linear]
@@ -26,7 +26,7 @@ class STK(SVM):
         @param sv_cutoff : the numerical cutoff for an example to be considered
                            a support vector [default: 1e-7]
         """
-        super(STK, self).__init__(*args, **kwargs)
+        super(STK, self).__init__(**kwargs)
         self._bags = None
         self._bag_predictions = None
 
