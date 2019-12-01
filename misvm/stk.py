@@ -2,6 +2,7 @@
 Implements the STK of Gartner et al.
 """
 from __future__ import print_function, division
+import inspect
 import numpy as np
 
 from misvm.svm import SVM
@@ -12,7 +13,7 @@ class STK(SVM):
     Statistics kernel of Gaertner, et al. (2002)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
         @param kernel : the desired kernel function; can be linear, quadratic,
                         polynomial, or rbf [default: linear]
@@ -26,7 +27,7 @@ class STK(SVM):
         @param sv_cutoff : the numerical cutoff for an example to be considered
                            a support vector [default: 1e-7]
         """
-        super(STK, self).__init__(*args, **kwargs)
+        super(STK, self).__init__(**kwargs)
         self._bags = None
         self._bag_predictions = None
 
@@ -56,6 +57,13 @@ class STK(SVM):
         svm_X = _stats_from_bags(bags)
         return super(STK, self).predict(svm_X)
 
+    def get_params(self, deep=True):
+        """
+        return params
+        """
+        args, _, _, _ = inspect.getargspec(super(STK, self).__init__)
+        args.pop(0)
+        return {key: getattr(self, key, None) for key in args}
 
 def _stats_from_bags(bags):
     return np.vstack([np.hstack([np.min(bag, 0), np.max(bag, 0)])
